@@ -54,15 +54,17 @@ test('Agent should get total value of portfolio', () => {
     expect(testAgent.getPortfolioValue(stockList)).toBe(1500);
 });
 
-test('Agent should set stock amount in portfolio to a certain number', () => {
+test('Agent should adjust stock amount in portfolio to a certain number', () => {
     let stockList = new StockList();
     stockList.addStock(new Stock('AAPL', 100));
-    let testAgent = new Agent(1000, { AAPL: 4 }, Strategy.randomStrategy);
+    stockList.addStock(new Stock('GOOGL', 200));
+    let testAgent = new Agent(1000, { AAPL: 4, GOOGL: 3 }, Strategy.randomStrategy);
     testAgent.adjustStockPercentage(stockList.getStock('AAPL'), 0.5, stockList);
-    expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 7 });
+    testAgent.adjustStock(stockList.getStock('GOOGL'), 5, stockList);
+    expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 10, GOOGL: 5 });
 });
 
-test('Agent should set stock amount in portfolio to a certain percentage of total portfolio value', () => {
+test('Agent should adjust stock amount in portfolio to a certain percentage of total portfolio value', () => {
     let stockList = new StockList();
     stockList.addStock(new Stock('AAPL', 100));
     stockList.addStock(new Stock('GOOGL', 200));
@@ -72,13 +74,13 @@ test('Agent should set stock amount in portfolio to a certain percentage of tota
     expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6, GOOGL: 3 });
 });
 
-test('Buy and hold strategy should buy and hold equal amounts of each stock', () => {
+test('Buy and adjust strategy should buy and adjust equal amounts of each stock', () => {
     let stockList = new StockList();
     stockList.addStock(new Stock('AAPL', 100));
     stockList.addStock(new Stock('GOOGL', 200));
     stockList.addStock(new Stock('MSFT', 50));
 
-    let testAgent = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
+    let testAgent = new Agent(1200, {}, Strategy.buyAndAdjustStrategy);
     testAgent.executeStrategy(stockList);
 
     expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });

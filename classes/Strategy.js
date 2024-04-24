@@ -35,8 +35,8 @@ class Strategy {
         }
     });
 
-    // Buy and hold strategy
-    static buyAndHoldStrategy = new Strategy((agent, stockList) => {
+    // Buy and adjust strategy
+    static buyAndAdjustStrategy = new Strategy((agent, stockList) => {
         let stocks = stockList.getAllStocks();
         for (let stock in stocks) {
             agent.adjustStockPercentage(stocks[stock], 1 / Object.keys(stocks).length, stockList);
