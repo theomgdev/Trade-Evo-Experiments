@@ -62,7 +62,7 @@ class Agent {
 
     // Buy stock
     buyStock(stock, quantity) {
-        if (quantity < 0) {
+        if (quantity <= 0) {
             return;
         }
 
@@ -83,7 +83,7 @@ class Agent {
 
     // Sell stock
     sellStock(stock, quantity) {
-        if (quantity < 0) {
+        if (quantity <= 0) {
             return;
         }
 
@@ -100,12 +100,20 @@ class Agent {
 
     // Buy stock worth a certain amount of cash
     buyStockWorth(stock, cash) {
+        if (cash <= 0) {
+            return;
+        }
+
         let quantity = Math.floor(cash / stock.getPrice());
         this.buyStock(stock, quantity);
     }
 
     // Sell stock worth a certain amount of cash
     sellStockWorth(stock, cash) {
+        if (cash <= 0) {
+            return;
+        }
+        
         let quantity = Math.floor(cash / stock.getPrice());
         this.sellStock(stock, quantity);
     }
