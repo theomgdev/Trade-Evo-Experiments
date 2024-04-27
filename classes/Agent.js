@@ -169,7 +169,7 @@ class Agent {
 
     // Clone
     clone() {
-        return new Agent(this.cash, this.portfolio, this.strategy);
+        return new Agent(this.cash, this.portfolio, this.strategy.clone());
     }
 
     // Equals

@@ -8,21 +8,6 @@ class Strategy {
         this.strategyFunction = strategyFunction;
     }
 
-    // Execute strategy
-    execute(agent, stockList) {
-        this.strategyFunction(agent, stockList);
-    }
-
-    // Set strategy function
-    setStrategyFunction(strategyFunction) {
-        this.strategyFunction = strategyFunction;
-    }
-
-    // Get strategy function
-    getStrategyFunction() {
-        return this.strategyFunction;
-    }
-
     // Random strategy
     static randomStrategy = new Strategy((agent, stockList) => {
         let stocks = stockList.getAllStocks();
@@ -42,6 +27,21 @@ class Strategy {
             agent.adjustStockPercentage(stocks[stock], 1 / Object.keys(stocks).length, stockList);
         }
     });
+
+    // Execute strategy
+    execute(agent, stockList) {
+        this.strategyFunction(agent, stockList);
+    }
+
+    // Set strategy function
+    setStrategyFunction(strategyFunction) {
+        this.strategyFunction = strategyFunction;
+    }
+
+    // Get strategy function
+    getStrategyFunction() {
+        return this.strategyFunction;
+    }
     
     // Clone
     clone() {
@@ -51,12 +51,25 @@ class Strategy {
     // Equals
     equals(strategy) {
         // Compare strategy functions
-        return this.strategyFunction.toString() === strategy.strategyFunction.toString();
+        return this.hash() == strategy.hash();
     }
 
     // Debug
     debug() {
         console.log(this.strategyFunction);
+    }
+
+    // Strategy Hash Code (for performance optimised comparison)
+    hash() {
+        let hash = 0;
+        let string = this.strategyFunction.toString();
+        if (string.length == 0) return hash;
+        for (let i = 0; i < string.length; i++) {
+            let char = string.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash;
     }
 }
 

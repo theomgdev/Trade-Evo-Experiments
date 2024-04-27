@@ -11,7 +11,7 @@ Strategy = require('./classes/Strategy.js');
 Agent = require('./classes/Agent.js');
 
 describe('Core Functionality', () => {
-    describe('StockList', () => {
+    describe('StockList Class', () => {
         test('StockList should add a stock to the list', () => {
             let stockList = new StockList();
             stockList.addStock(new Stock('AAPL', 100));
@@ -80,7 +80,7 @@ describe('Core Functionality', () => {
         });
     });
 
-    describe('Agent', () => {
+    describe('Agent Class', () => {
         test('Agent should buy stock worth a certain amount of cash', () => {
             let stockList = new StockList();
             stockList.addStock(new Stock('AAPL', 100));
@@ -159,7 +159,7 @@ describe('Core Functionality', () => {
         });
     });
 
-    describe('Stock', () => {
+    describe('Stock Class', () => {
         test('Stock should update price', () => {
             let testStock = new Stock('AAPL', 100);
             testStock.updatePrice(200);
@@ -213,6 +213,44 @@ describe('Core Functionality', () => {
             expect(testStock.equals(testStock2)).toBe(true);
         });
     });
+
+    describe('Strategy Class', () => {
+        test('Strategy should execute', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+            testAgent.executeStrategy(stockList);
+            expect(Object.keys(testAgent.getPortfolio()).length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('Strategy should set strategy function', () => {
+            let testStrategy = new Strategy(() => {});
+            testStrategy.setStrategyFunction(() => {});
+            expect(getType(testStrategy.getStrategyFunction())).toBe('function');
+        });
+
+        test('Strategy should get strategy function', () => {
+            let testStrategy = new Strategy(() => {});
+            expect(getType(testStrategy.getStrategyFunction())).toBe('function');
+        });
+
+        test('Strategy should clone', () => {
+            let testStrategy = new Strategy(() => {});
+            let clonedStrategy = testStrategy.clone();
+            expect(clonedStrategy.equals(testStrategy)).toBe(true);
+        });
+
+        test('Strategy should compare', () => {
+            let testStrategy = new Strategy(() => {return 1;});
+            let testStrategy2 = new Strategy(() => {return 2;});
+            expect(testStrategy.equals(testStrategy2)).toBe(false);
+
+            let testStrategy3 = new Strategy(() => {return 1;});
+            let testStrategy4 = new Strategy(() => {return 1;});
+            expect(testStrategy3.equals(testStrategy4)).toBe(true);
+        });
+    });
 });
 
 describe('Strategies', () => {
@@ -244,3 +282,106 @@ describe('Strategies', () => {
     });
 });
 
+describe('Flow', () => {
+    describe('Strategy Flow', () => {
+        test('Agents should not have the same portfolio after executing random strategy', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+
+            for (let i = 0; i < 100; i++) {
+                testAgent.executeStrategy(stockList);
+            }
+
+            let testAgent2 = new Agent(1200, {}, Strategy.randomStrategy);
+            for (let i = 0; i < 100; i++) {
+                testAgent2.executeStrategy(stockList);
+            }
+
+            expect(testAgent.equals(testAgent2)).toBe(false);
+        });
+
+        test('Agents should have the same portfolio after executing equal buy and adjust strategy', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+
+            let testAgent = new Agent(1200, {}, Strategy.equalBuyAndAdjustStrategy);
+            testAgent.executeStrategy(stockList);
+
+            let testAgent2 = new Agent(1200, {}, Strategy.equalBuyAndAdjustStrategy);
+            testAgent2.executeStrategy(stockList);
+
+            expect(testAgent.equals(testAgent2)).toBe(true);
+        });
+    });
+
+    describe('Agent Flow', () => {
+        test('Clone should not act same as original agent', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+
+            for (let i = 0; i < 100; i++) {
+                testAgent.executeStrategy(stockList);
+            }
+
+            let clonedAgent = testAgent.clone();
+
+            for (let i = 0; i < 100; i++) {
+                clonedAgent.executeStrategy(stockList);
+            }
+
+            expect(testAgent.equals(clonedAgent)).toBe(false);
+        });
+    });
+
+    describe('Stock Flow', () => {
+        test('Stock should not act same as original stock after updating price', () => {
+            let testStock = new Stock('AAPL', 100);
+            testStock.updatePrice(200);
+
+            let clonedStock = testStock.clone();
+            clonedStock.updatePrice(300);
+
+            expect(testStock.equals(clonedStock)).toBe(false);
+        });
+
+        test('Stock should act same as original stock after setting info', () => {
+            let testStock = new Stock('AAPL', 100);
+            testStock.setInfo('GOOGL', 200);
+
+            let clonedStock = testStock.clone();
+            clonedStock.setInfo('GOOGL', 200);
+
+            expect(testStock.equals(clonedStock)).toBe(true);
+        });
+
+        test('Stock should not act same as original stock after setting symbol', () => {
+            let testStock = new Stock('AAPL', 100);
+            testStock.setSymbol('GOOGL');
+
+            let clonedStock = testStock.clone();
+            clonedStock.setSymbol('MSFT');
+
+            expect(testStock.equals(clonedStock)).toBe(false);
+        });
+
+        test('Stock should not act same as original stock after setting price', () => {
+            let testStock = new Stock('AAPL', 100);
+            testStock.setPrice(200);
+
+            let clonedStock = testStock.clone();
+            clonedStock.setPrice(300);
+
+            expect(testStock.equals(clonedStock)).toBe(false);
+        });
+    });
+});
