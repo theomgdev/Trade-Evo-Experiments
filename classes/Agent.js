@@ -61,9 +61,13 @@ class Agent {
     }
 
     // Buy stock
-    buyStock(stock, quantity) {
+    buyStock(stock, quantity, integer = true) {
         if (quantity <= 0) {
             return;
+        }
+
+        if (integer) {
+            quantity = Math.floor(quantity);
         }
 
         if (this.cash >= stock.getPrice() * quantity) {
@@ -82,9 +86,13 @@ class Agent {
     }
 
     // Sell stock
-    sellStock(stock, quantity) {
+    sellStock(stock, quantity, integer = true) {
         if (quantity <= 0) {
             return;
+        }
+
+        if (integer) {
+            quantity = Math.floor(quantity);
         }
 
         if (this.hasStock(stock) && this.getStockQuantity(stock) >= quantity) {
@@ -99,22 +107,22 @@ class Agent {
     }
 
     // Buy stock worth a certain amount of cash
-    buyStockWorth(stock, cash) {
+    buyStockWorth(stock, cash, integer = true) {
         if (cash <= 0) {
             return;
         }
 
-        let quantity = Math.floor(cash / stock.getPrice());
+        let quantity = integer ? Math.floor(cash / stock.getPrice()) : cash / stock.getPrice();
         this.buyStock(stock, quantity);
     }
 
     // Sell stock worth a certain amount of cash
-    sellStockWorth(stock, cash) {
+    sellStockWorth(stock, cash, integer = true) {
         if (cash <= 0) {
             return;
         }
         
-        let quantity = Math.floor(cash / stock.getPrice());
+        let quantity = integer ? Math.floor(cash / stock.getPrice()) : cash / stock.getPrice();
         this.sellStock(stock, quantity);
     }
 

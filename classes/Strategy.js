@@ -27,10 +27,10 @@ class Strategy {
     static randomStrategy = new Strategy((agent, stockList) => {
         let stocks = stockList.getAllStocks();
         for (let stock in stocks) {
-            if (Math.random() < 0.5) {
-                agent.buyStock(stock, Math.floor(Math.random() * 10));
+            if (Math.random() <= 0.5) {
+                agent.buyStock(stocks[stock], Math.random() * 10);
             } else {
-                agent.sellStock(stock, Math.floor(Math.random() * 10));
+                agent.sellStock(stocks[stock], Math.random() * 10);
             }
         }
     });
