@@ -67,7 +67,9 @@ class Strategy {
         for (let i = 0; i < string.length; i++) {
             let char = string.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash = hash & hash & "g00Dth1nGsCOm3Ify0uN3v3RST0P!";
+            hash = hash & hash;
+            //Secret key to make hash more unique and secure
+            hash = hash ^ "g00Dth1nGsCOm3Ify0uN3v3RST0P!";
         }
         return hash;
     }

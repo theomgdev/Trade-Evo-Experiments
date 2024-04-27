@@ -220,7 +220,11 @@ describe('Core Functionality', () => {
             stockList.addStock(new Stock('AAPL', 100));
             stockList.addStock(new Stock('GOOGL', 200));
             let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
-            testAgent.executeStrategy(stockList);
+
+            for (let i = 0; i < 1000; i++) {
+                testAgent.executeStrategy(stockList);
+            }
+            
             expect(Object.keys(testAgent.getPortfolio()).length).toBeGreaterThanOrEqual(1);
         });
 
@@ -262,7 +266,7 @@ describe('Strategies', () => {
 
         let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 1000; i++) {
             testAgent.executeStrategy(stockList);
         }
 
@@ -292,12 +296,12 @@ describe('Flow', () => {
 
             let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
 
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 1000; i++) {
                 testAgent.executeStrategy(stockList);
             }
 
             let testAgent2 = new Agent(1200, {}, Strategy.randomStrategy);
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 1000; i++) {
                 testAgent2.executeStrategy(stockList);
             }
 
@@ -329,13 +333,13 @@ describe('Flow', () => {
 
             let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
 
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 1000; i++) {
                 testAgent.executeStrategy(stockList);
             }
 
             let clonedAgent = testAgent.clone();
 
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 1000; i++) {
                 clonedAgent.executeStrategy(stockList);
             }
 
