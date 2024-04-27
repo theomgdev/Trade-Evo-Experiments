@@ -39,6 +39,45 @@ describe('Core Functionality', () => {
             let clonedStockList = stockList.clone();
             expect(clonedStockList.equals(stockList)).toBe(true);
         });
+
+        test('StockList should compare two stock lists', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            let stockList2 = new StockList();
+            stockList2.addStock(new Stock('AAPL', 100));
+            stockList2.addStock(new Stock('GOOGL', 200));
+            expect(stockList.equals(stockList2)).toBe(true);
+        });
+
+        test('StockList should get all stocks', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            expect(Object.keys(stockList.getAllStocks()).length).toBe(2);
+        });
+
+        test('StockList should get a stock by symbol', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            expect(stockList.getStock('AAPL').getPrice()).toBe(100);
+        });
+
+        test('StockList should update a stock price', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.updateStockPrice('AAPL', 200);
+            expect(stockList.getStock('AAPL').getPrice()).toBe(200);
+        });
+
+        test('StockList should clone', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            let clonedStockList = stockList.clone();
+            expect(clonedStockList.equals(stockList)).toBe(true);
+        });
     });
 
     describe('Agent', () => {
@@ -84,6 +123,39 @@ describe('Core Functionality', () => {
             expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6 });
             testAgent.adjustStockPercentage(stockList.getStock('GOOGL'), 0.5, stockList);
             expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6, GOOGL: 3 });
+        });
+
+        test('Agent should execute trading strategy', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            let testAgent = new Agent(1200, {}, Strategy.equalBuyAndAdjustStrategy);
+            testAgent.executeStrategy(stockList);
+            expect(Object.keys(testAgent.getPortfolio()).length).toBeGreaterThanOrEqual(1);
+        });
+
+        test('Agent should clone', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            let testAgent = new Agent(1200, { AAPL: 6, GOOGL: 3 }, Strategy.randomStrategy);
+            let clonedAgent = testAgent.clone();
+            expect(clonedAgent.equals(testAgent)).toBe(true);
+        });
+
+        test('Agent should compare', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            let testAgent = new Agent(1200, { AAPL: 6, GOOGL: 3 }, Strategy.randomStrategy);
+            let testAgent2 = new Agent(1200, { AAPL: 6, GOOGL: 3 }, Strategy.randomStrategy);
+            let testAgent3 = new Agent(7878, { AAPL: 6, GOOGL: 3 }, Strategy.randomStrategy);
+            let testAgent4 = new Agent(1200, { AAPL: 6, GOOGL: 3, MSFT: 3 }, Strategy.randomStrategy);
+            let testAgent5 = new Agent(1200, { AAPL: 6, GOOGL: 3 }, Strategy.equalBuyAndAdjustStrategy);
+            expect(testAgent.equals(testAgent2)).toBe(true);
+            expect(testAgent.equals(testAgent3)).toBe(false);
+            expect(testAgent.equals(testAgent4)).toBe(false);
+            expect(testAgent.equals(testAgent5)).toBe(false);
         });
     });
 
@@ -155,8 +227,6 @@ describe('Strategies', () => {
         for (let i = 0; i < 100; i++) {
             testAgent.executeStrategy(stockList);
         }
-
-        testAgent.debug();
 
         expect(Object.keys(testAgent.getPortfolio()).length).toBeGreaterThanOrEqual(1);
     });

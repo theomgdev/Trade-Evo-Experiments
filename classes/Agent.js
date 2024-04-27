@@ -174,7 +174,21 @@ class Agent {
 
     // Equals
     equals(agent) {
-        return this.cash == agent.cash && this.portfolio == agent.portfolio;
+        if(this.cash != agent.cash) {
+            return false;
+        }
+
+        if(Object.keys(this.portfolio).length != Object.keys(agent.portfolio).length) {
+            return false;
+        }
+
+        for(let symbol in this.portfolio) {
+            if(this.portfolio[symbol] != agent.portfolio[symbol]) {
+                return false;
+            }
+        }
+
+        return this.strategy.equals(agent.strategy);
     }
 
     // Debug

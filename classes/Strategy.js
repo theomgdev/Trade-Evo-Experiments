@@ -50,7 +50,8 @@ class Strategy {
 
     // Equals
     equals(strategy) {
-        return this.strategyFunction === strategy.getStrategyFunction();
+        // Compare strategy functions
+        return this.strategyFunction.toString() === strategy.strategyFunction.toString();
     }
 
     // Debug
