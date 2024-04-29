@@ -181,3 +181,5 @@ class Simulation {
         return this.stockList.getAllStocks().indexOf(stock);
     }
 }
+
+module.exports = Simulation;

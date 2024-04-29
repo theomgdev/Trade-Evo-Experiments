@@ -7,8 +7,9 @@ const {format: prettyFormat} = require('pretty-format');
 //Classes
 Stock = require('./classes/Stock.js');
 StockList = require('./classes/StockList.js');
-Strategy = require('./classes/Strategy.js');
 Agent = require('./classes/Agent.js');
+Strategy = require('./classes/Strategy.js');
+Simulation = require('./classes/Simulation.js');
 
 describe('Core Functionality', () => {
     describe('StockList Class', () => {
@@ -254,6 +255,9 @@ describe('Core Functionality', () => {
             let testStrategy4 = new Strategy(() => {return 1;});
             expect(testStrategy3.equals(testStrategy4)).toBe(true);
         });
+    });
+
+    describe('Simulation Class', () => {
     });
 });
 
