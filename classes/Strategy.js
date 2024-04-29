@@ -24,7 +24,10 @@ class Strategy {
     static equalBuyAndAdjustStrategy = new Strategy((agent, stockList) => {
         let stocks = stockList.getAllStocks();
         for (let stock in stocks) {
-            agent.adjustStockPercentage(stocks[stock], 1 / Object.keys(stocks).length, stockList);
+            agent.adjustStockPercentage(stocks[stock], 1 / Object.keys(stocks).length, stockList, -1);
+        }
+        for (let stock in stocks) {
+            agent.adjustStockPercentage(stocks[stock], 1 / Object.keys(stocks).length, stockList, 1);
         }
     });
 

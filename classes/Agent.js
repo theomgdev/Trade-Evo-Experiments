@@ -136,29 +136,39 @@ class Agent {
     }
 
     // Set stock amount in portfolio(buy/sell) to a certain number
-    adjustStock(stock, quantity) {
+    adjustStock(stock, quantity, direction = 0) {
         if (this.hasStock(stock)) {
             let difference = quantity - this.getStockQuantity(stock);
             if (difference > 0) {
-                this.buyStock(stock, difference);
+                if(direction == 0 || direction == 1) {
+                    this.buyStock(stock, difference);
+                }
             } else {
-                this.sellStock(stock, -difference);
+                if(direction == 0 || direction == -1) {
+                    this.sellStock(stock, -difference);
+                }
             }
         } else {
-            this.buyStock(stock, quantity);
+            if(direction == 0 || direction == 1) {
+                this.buyStock(stock, quantity);
+            }
         }
     }
 
     // Set stock amount in portfolio(buy/sell) to a certain percentage of total portfolio value
-    adjustStockPercentage(stock, percentage, stockList) {
+    adjustStockPercentage(stock, percentage, stockList, direction = 0) {
         let totalValue = this.getPortfolioValue(stockList);
         let stockValue = stockList.getStock(stock.getSymbol()).getPrice() * this.getStockQuantity(stock);
         let targetValue = totalValue * percentage;
         let difference = targetValue - stockValue;
         if (difference > 0) {
-            this.buyStockWorth(stock, difference);
+            if(direction == 0 || direction == 1) {
+                this.buyStockWorth(stock, difference);
+            }
         } else {
-            this.sellStockWorth(stock, -difference);
+            if(direction == 0 || direction == -1) {
+                this.sellStockWorth(stock, -difference);
+            }
         }
     }
 

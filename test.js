@@ -110,7 +110,7 @@ describe('Core Functionality', () => {
             stockList.addStock(new Stock('GOOGL', 200));
             let testAgent = new Agent(1000, { AAPL: 4, GOOGL: 3 }, Strategy.randomStrategy);
             testAgent.adjustStockPercentage(stockList.getStock('AAPL'), 0.5, stockList);
-            testAgent.adjustStock(stockList.getStock('GOOGL'), 5, stockList);
+            testAgent.adjustStock(stockList.getStock('GOOGL'), 5);
             expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 10, GOOGL: 5 });
         });
 
@@ -283,6 +283,19 @@ describe('Strategies', () => {
         testAgent.executeStrategy(stockList);
 
         expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });
+    });
+
+    test('Equal buy and adjust strategy should work first sell then buy to adjust situation', () => {
+        let stockList = new StockList();
+        stockList.addStock(new Stock('AAPL', 100));
+        stockList.addStock(new Stock('GOOGL', 200));
+        stockList.addStock(new Stock('MSFT', 50));
+
+        //No cash to buy but total portfolio value is 3000
+        let testAgent = new Agent(0, { AAPL: 9, GOOGL: 8, MSFT: 10 }, Strategy.equalBuyAndAdjustStrategy);
+        testAgent.executeStrategy(stockList);
+
+        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 10, GOOGL: 5, MSFT: 20 });
     });
 });
 
