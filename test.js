@@ -257,8 +257,8 @@ describe('Core Functionality', () => {
         });
     });
 
-    describe('Simulation Class', () => {
-    });
+    /*describe('Simulation Class', () => {
+    });*/
 });
 
 describe('Strategies', () => {
@@ -361,6 +361,37 @@ describe('Flow', () => {
             }
 
             expect(testAgent.equals(clonedAgent)).toBe(false);
+        });
+
+        test('Agent should lose value after stock price falls', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1000, { AAPL: 10 }, Strategy.randomStrategy);
+            let value = testAgent.getPortfolioValue(stockList);
+            stockList.getStock('AAPL').fall(0.1);
+            testAgent.executeStrategy(stockList);
+            expect(testAgent.getPortfolioValue(stockList)).toBeLessThan(value);
+        });
+
+        test('Agent should gain value after stock price rises', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1000, { AAPL: 10 }, Strategy.randomStrategy);
+            let value = testAgent.getPortfolioValue(stockList);
+            stockList.getStock('AAPL').rise(0.1);
+            testAgent.executeStrategy(stockList);
+            expect(testAgent.getPortfolioValue(stockList)).toBeGreaterThan(value);
+        });
+
+        test('Agent\'s value should be same after stock price rises and falls', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1000, { AAPL: 10 }, Strategy.randomStrategy);
+            let value = testAgent.getPortfolioValue(stockList);
+            stockList.getStock('AAPL').rise(0.6);
+            stockList.getStock('AAPL').fall(0.375);
+            testAgent.executeStrategy(stockList);
+            expect(testAgent.getPortfolioValue(stockList)).toBe(value);
         });
     });
 
