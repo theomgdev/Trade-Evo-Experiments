@@ -23,10 +23,10 @@ class Simulation {
     }
 
     // Run simulation
-    run() {
-        for (let i = 0; i < this.time; i++) {
+    run(steps = 100) {
+        for (let i = 0; i < steps; i++) {
             for (let agent of this.agents) {
-                agent.getStrategy().execute(agent, this.stockList);
+                agent.executeStrategy(this.stockList);
             }
             this.time++;
             this.priceUpdateFunction(this.time, this.stockList);
@@ -36,6 +36,7 @@ class Simulation {
     // Get final state
     getFinalState() {
         return {
+            time: this.time,
             stockList: this.stockList,
             agents: this.agents
         };
@@ -52,7 +53,14 @@ class Simulation {
 
     // Equals
     equals(simulation) {
-        return this.time == simulation.time && this.stockList.equals(simulation.stockList) && this.agents.equals(simulation.agents) && this.hash() == simulation.hash();
+        let equalAgents = true;
+        for (let i = 0; i < this.agents.length; i++) {
+            if (!this.agents[i].equals(simulation.agents[i])) {
+                equalAgents = false;
+                break;
+            }
+        }
+        return this.time == simulation.time && this.stockList.equals(simulation.stockList) && equalAgents && this.hash() == simulation.hash();
     }
 
     // Debug
@@ -60,7 +68,9 @@ class Simulation {
         console.log('Simulation:');
         console.log('Time:', this.time);
         console.log('Stock List:', this.stockList.debug());
-        console.log('Agents:', this.agents.debug());
+        for (let agent of this.agents) {
+            agent.debug();
+        }
     }
 
     // Strategy Hash Code (for performance optimised comparison)
@@ -179,6 +189,16 @@ class Simulation {
     // Get stock index
     getStockIndex(stock) {
         return this.stockList.getAllStocks().indexOf(stock);
+    }
+
+    // Get agent by index
+    getAgentByIndex(index) {
+        return this.agents[index];
+    }
+
+    // Get stock by index
+    getStockByIndex(index) {
+        return this.stockList.getAllStocks()[index];
     }
 }
 
