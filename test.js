@@ -158,6 +158,14 @@ describe('Core Functionality', () => {
             expect(testAgent.equals(testAgent4)).toBe(false);
             expect(testAgent.equals(testAgent5)).toBe(false);
         });
+
+        test('Agent.hasStock should return false after selling all stocks', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1000, { AAPL: 10 }, Strategy.randomStrategy);
+            testAgent.sellStock(stockList.getStock('AAPL'), 10);
+            expect(testAgent.hasStock(stockList.getStock('AAPL'))).toBe(false);
+        });
     });
 
     describe('Stock Class', () => {
@@ -257,8 +265,46 @@ describe('Core Functionality', () => {
         });
     });
 
-    /*describe('Simulation Class', () => {
-    });*/
+    describe('Simulation Class', () => {
+        test('Simulation should run', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
+            let simulation = new Simulation((time, stockList) => {
+                stockList.updateStockPrice('AAPL', stockList.getStock('AAPL').getPrice() + time);
+            }, stockList, [testAgent], 0);
+            simulation.run(100);
+            let finalState = simulation.getFinalState();
+            expect(finalState.time).toBe(100);
+            expect(finalState.stockList.getStock('AAPL').getPrice()).toBe(5150);
+            expect(finalState.agents[0].getPortfolioValue(finalState.stockList)).toBe(61800);
+        });
+
+        test('Simulation should clone', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+            let simulation = new Simulation((time, stockList) => {
+                stockList.updateStockPrice('AAPL', 200);
+            }, stockList, [testAgent], 0);
+            let clonedSimulation = simulation.clone();
+            expect(clonedSimulation.equals(simulation)).toBe(true);
+        });
+
+        test('Simulation should compare', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+            let simulation = new Simulation(() => {}, stockList, [testAgent], 0);
+            let simulation2 = new Simulation((time, stockList) => {
+                stockList.updateStockPrice('AAPL', 200);
+            }, stockList, [testAgent], 0);
+            let simulation3 = new Simulation(() => {}, stockList, [testAgent], 0);
+
+            expect(simulation.equals(simulation2)).toBe(false);
+            expect(simulation.equals(simulation3)).toBe(true);
+        });
+    });
 });
 
 describe('Strategies', () => {
@@ -301,6 +347,30 @@ describe('Strategies', () => {
 
         expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 10, GOOGL: 5, MSFT: 20 });
     });
+
+    test('Buy and hold strategy should buy stocks that agent does not own equally', () => {
+        let stockList = new StockList();
+        stockList.addStock(new Stock('AAPL', 100));
+        stockList.addStock(new Stock('GOOGL', 200));
+        stockList.addStock(new Stock('MSFT', 50));
+
+        let testAgent = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
+        testAgent.executeStrategy(stockList);
+
+        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });
+    });
+
+    test('Buy and hold strategy should not buy stocks that agent already owns', () => {
+        let stockList = new StockList();
+        stockList.addStock(new Stock('AAPL', 100));
+        stockList.addStock(new Stock('GOOGL', 200));
+        stockList.addStock(new Stock('MSFT', 50));
+
+        let testAgent = new Agent(1200, { AAPL: 6, GOOGL: 6, MSFT: 6 }, Strategy.buyAndHoldStrategy);
+        testAgent.executeStrategy(stockList);
+
+        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6, GOOGL: 6, MSFT: 6 });
+    });
 });
 
 describe('Flow', () => {
@@ -335,6 +405,21 @@ describe('Flow', () => {
             testAgent.executeStrategy(stockList);
 
             let testAgent2 = new Agent(1200, {}, Strategy.equalBuyAndAdjustStrategy);
+            testAgent2.executeStrategy(stockList);
+
+            expect(testAgent.equals(testAgent2)).toBe(true);
+        });
+
+        test('Agents should have the same portfolio after executing buy and hold strategy', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+
+            let testAgent = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
+            testAgent.executeStrategy(stockList);
+
+            let testAgent2 = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
             testAgent2.executeStrategy(stockList);
 
             expect(testAgent.equals(testAgent2)).toBe(true);

@@ -31,6 +31,27 @@ class Strategy {
         }
     });
 
+    // Buy and hold strategy
+    static buyAndHoldStrategy = new Strategy((agent, stockList) => {
+        //First count the number of stocks in the stockList that the agent does not own
+        let stocks = stockList.getAllStocks();
+        let toBuy = [];
+        for (let stock in stocks) {
+            if (!agent.hasStock(stocks[stock])) {
+                toBuy.push(stocks[stock]);
+            }
+        }
+
+        let cash = agent.getCash();
+        
+        //If there are stocks to buy, buy them equally (cash/number of stocks)
+        if (toBuy.length > 0) {
+            for (let i = 0; i < toBuy.length; i++) {
+                agent.buyStockWorth(toBuy[i], cash / toBuy.length);
+            }
+        }
+    });
+
     // Execute strategy
     execute(agent, stockList) {
         this.strategyFunction(agent, stockList);
