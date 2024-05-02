@@ -61,7 +61,7 @@ class Agent {
     }
 
     // Buy stock
-    buyStock(stock, quantity, integer = true) {
+    buyStock(stock, quantity, integer = false) {
         if (quantity <= 0) {
             return;
         }
@@ -86,7 +86,7 @@ class Agent {
     }
 
     // Sell stock
-    sellStock(stock, quantity, integer = true) {
+    sellStock(stock, quantity, integer = false) {
         if (quantity <= 0) {
             return;
         }
@@ -107,23 +107,23 @@ class Agent {
     }
 
     // Buy stock worth a certain amount of cash
-    buyStockWorth(stock, cash, integer = true) {
+    buyStockWorth(stock, cash, integer = false) {
         if (cash <= 0) {
             return;
         }
 
         let quantity = integer ? Math.floor(cash / stock.getPrice()) : cash / stock.getPrice();
-        this.buyStock(stock, quantity);
+        this.buyStock(stock, quantity, integer);
     }
 
     // Sell stock worth a certain amount of cash
-    sellStockWorth(stock, cash, integer = true) {
+    sellStockWorth(stock, cash, integer = false) {
         if (cash <= 0) {
             return;
         }
         
         let quantity = integer ? Math.floor(cash / stock.getPrice()) : cash / stock.getPrice();
-        this.sellStock(stock, quantity);
+        this.sellStock(stock, quantity, integer);
     }
 
     // Get total value of portfolio
@@ -136,38 +136,38 @@ class Agent {
     }
 
     // Set stock amount in portfolio(buy/sell) to a certain number
-    adjustStock(stock, quantity, direction = 0) {
+    adjustStock(stock, quantity, direction = 0, integer = false) {
         if (this.hasStock(stock)) {
             let difference = quantity - this.getStockQuantity(stock);
             if (difference > 0) {
                 if(direction == 0 || direction == 1) {
-                    this.buyStock(stock, difference);
+                    this.buyStock(stock, difference, integer);
                 }
             } else {
                 if(direction == 0 || direction == -1) {
-                    this.sellStock(stock, -difference);
+                    this.sellStock(stock, -difference, integer);
                 }
             }
         } else {
             if(direction == 0 || direction == 1) {
-                this.buyStock(stock, quantity);
+                this.buyStock(stock, quantity, integer);
             }
         }
     }
 
     // Set stock amount in portfolio(buy/sell) to a certain percentage of total portfolio value
-    adjustStockPercentage(stock, percentage, stockList, direction = 0) {
+    adjustStockPercentage(stock, percentage, stockList, direction = 0, integer = false) {
         let totalValue = this.getPortfolioValue(stockList);
         let stockValue = stockList.getStock(stock.getSymbol()).getPrice() * this.getStockQuantity(stock);
         let targetValue = totalValue * percentage;
         let difference = targetValue - stockValue;
         if (difference > 0) {
             if(direction == 0 || direction == 1) {
-                this.buyStockWorth(stock, difference);
+                this.buyStockWorth(stock, difference, integer);
             }
         } else {
             if(direction == 0 || direction == -1) {
-                this.sellStockWorth(stock, -difference);
+                this.sellStockWorth(stock, -difference, integer);
             }
         }
     }

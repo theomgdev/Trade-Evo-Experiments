@@ -423,6 +423,26 @@ describe('Flow', () => {
     
             expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6, GOOGL: 6, MSFT: 6 });
         });
+
+        test('Zig zag type price movement should be profitable for equalBuyAndAdjustStrategy', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 4));
+            stockList.addStock(new Stock('GOOGL', 1));
+            let testAgent = new Agent(0, { GOOGL: 8 }, Strategy.equalBuyAndAdjustStrategy);
+            let value = testAgent.getPortfolioValue(stockList);
+
+            testAgent.executeStrategy(stockList);
+
+            stockList.getStock('AAPL').updatePrice(2);
+            stockList.getStock('GOOGL').updatePrice(2);
+            testAgent.executeStrategy(stockList);
+
+            stockList.getStock('AAPL').updatePrice(1);
+            stockList.getStock('GOOGL').updatePrice(4);
+            testAgent.executeStrategy(stockList);
+
+            expect(testAgent.getPortfolioValue(stockList)).toBeGreaterThan(value);
+        });
     });
 
     describe('Agent Flow', () => {
@@ -475,7 +495,7 @@ describe('Flow', () => {
             stockList.getStock('AAPL').rise(0.6);
             stockList.getStock('AAPL').fall(0.375);
             testAgent.executeStrategy(stockList);
-            expect(testAgent.getPortfolioValue(stockList)).toBe(value);
+            expect(Math.round(testAgent.getPortfolioValue(stockList))).toBe(Math.round(value));
         });
     });
 
@@ -518,6 +538,130 @@ describe('Flow', () => {
             clonedStock.setPrice(300);
 
             expect(testStock.equals(clonedStock)).toBe(false);
+        });
+    });
+
+    describe('Simulation Flow', () => {
+        test('Simulation should not act same as original simulation after running', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+            let simulation = new Simulation((time, stockList) => {
+                stockList.updateStockPrice('AAPL', stockList.getStock('AAPL').getPrice() + time);
+            }, stockList, [testAgent], 0);
+            simulation.run(100);
+
+            let clonedSimulation = simulation.clone();
+            clonedSimulation.run(100);
+
+            expect(simulation.equals(clonedSimulation)).toBe(false);
+        });
+
+        test('Simulation should act same as original simulation after cloning', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+            let simulation = new Simulation((time, stockList) => {
+                stockList.updateStockPrice('AAPL', stockList.getStock('AAPL').getPrice() + time);
+            }, stockList, [testAgent], 0);
+
+            let clonedSimulation = simulation.clone();
+
+            expect(simulation.equals(clonedSimulation)).toBe(true);
+        });
+
+        test('randomSimulation should effect portfolio value with equalBuyAndAdjustStrategy', () => {
+            let simulation = Simulation.randomSimulation;
+
+            //add stocks
+            simulation.addStock(new Stock('AAPL', 100));
+            simulation.addStock(new Stock('GOOGL', 200));
+            simulation.addStock(new Stock('MSFT', 50));
+
+            //add agent
+            simulation.addAgent(new Agent(1000, {}, Strategy.equalBuyAndAdjustStrategy));
+
+            //run
+            simulation.run();
+
+            //results
+            let finalState = simulation.getFinalState();
+            let agent = finalState.agents[0];
+            let portfolioValue = agent.getPortfolioValue(finalState.stockList);
+
+            expect(portfolioValue).not.toBe(1000);
+        });
+
+        test('flatSimulation should not effect portfolio value with equalBuyAndAdjustStrategy', () => {
+            let simulation = Simulation.flatSimulation;
+
+            //add stocks
+            simulation.addStock(new Stock('AAPL', 100));
+            simulation.addStock(new Stock('GOOGL', 200));
+            simulation.addStock(new Stock('MSFT', 50));
+
+            //add agent
+            simulation.addAgent(new Agent(1000, {}, Strategy.equalBuyAndAdjustStrategy));
+
+            //run
+            simulation.run();
+
+            //results
+            let finalState = simulation.getFinalState();
+            let agent = finalState.agents[0];
+            let portfolioValue = agent.getPortfolioValue(finalState.stockList);
+            
+            expect(portfolioValue).toBe(1000);
+        });
+
+        test('zigZagSimulation should not effect portfolio(parralel equals) equalBuyAndAdjustStrategy', () => {
+            let simulation = Simulation.zigZagSimulation;
+
+            //add stocks
+            simulation.addStock(new Stock('AAPL', 100));
+            simulation.addStock(new Stock('GOOGL', 200));
+            simulation.addStock(new Stock('MSFT', 50));
+
+            //add agent
+            simulation.addAgent(new Agent(1000, {}, Strategy.equalBuyAndAdjustStrategy));
+
+            //run
+            simulation.run();
+
+            //results
+            let finalState = simulation.getFinalState();
+            let agent = finalState.agents[0];
+            let portfolioValue = agent.getPortfolioValue(finalState.stockList);
+
+            expect(portfolioValue).toBe(1000);
+        });
+
+        test('randomZigZagSimulation should be profitable for equalBuyAndAdjustStrategy', () => {
+            let simulation = Simulation.randomZigZagSimulation;
+
+            //add stocks
+            simulation.addStock(new Stock('AAPL', 4));
+            simulation.addStock(new Stock('GOOGL', 1));
+            simulation.addStock(new Stock('MSFT', 1));
+            simulation.addStock(new Stock('AMZN', 1));
+            simulation.addStock(new Stock('TSLA', 2));
+
+            //add agent
+            simulation.addAgent(new Agent(0, { GOOGL: 8 }, Strategy.equalBuyAndAdjustStrategy));
+
+            //portfolio value
+            let value = simulation.getFinalState().agents[0].getPortfolioValue(simulation.getFinalState().stockList);
+
+            //run
+            simulation.run(30);
+
+            //results
+            let finalState = simulation.getFinalState();
+            let agent = finalState.agents[0];
+            let portfolioValue = agent.getPortfolioValue(finalState.stockList);
+
+            console.log(portfolioValue);
+            expect(portfolioValue).toBeGreaterThan(value);
         });
     });
 });
