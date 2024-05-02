@@ -307,72 +307,6 @@ describe('Core Functionality', () => {
     });
 });
 
-describe('Strategies', () => {
-    test('Random strategy should buy random amounts of each stock', () => {
-        let stockList = new StockList();
-        stockList.addStock(new Stock('AAPL', 100));
-        stockList.addStock(new Stock('GOOGL', 200));
-        stockList.addStock(new Stock('MSFT', 50));
-
-        let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
-
-        for (let i = 0; i < 1000; i++) {
-            testAgent.executeStrategy(stockList);
-        }
-
-        expect(Object.keys(testAgent.getPortfolio()).length).toBeGreaterThanOrEqual(1);
-    });
-
-    test('Equal buy and adjust strategy should equally(based on total portfolio value) buy and adjust equal amounts of each stock', () => {
-        let stockList = new StockList();
-        stockList.addStock(new Stock('AAPL', 100));
-        stockList.addStock(new Stock('GOOGL', 200));
-        stockList.addStock(new Stock('MSFT', 50));
-
-        let testAgent = new Agent(1200, {}, Strategy.equalBuyAndAdjustStrategy);
-        testAgent.executeStrategy(stockList);
-
-        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });
-    });
-
-    test('Equal buy and adjust strategy should work first sell then buy to adjust situation', () => {
-        let stockList = new StockList();
-        stockList.addStock(new Stock('AAPL', 100));
-        stockList.addStock(new Stock('GOOGL', 200));
-        stockList.addStock(new Stock('MSFT', 50));
-
-        //No cash to buy but total portfolio value is 3000
-        let testAgent = new Agent(0, { AAPL: 9, GOOGL: 8, MSFT: 10 }, Strategy.equalBuyAndAdjustStrategy);
-        testAgent.executeStrategy(stockList);
-
-        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 10, GOOGL: 5, MSFT: 20 });
-    });
-
-    test('Buy and hold strategy should buy stocks that agent does not own equally', () => {
-        let stockList = new StockList();
-        stockList.addStock(new Stock('AAPL', 100));
-        stockList.addStock(new Stock('GOOGL', 200));
-        stockList.addStock(new Stock('MSFT', 50));
-
-        let testAgent = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
-        testAgent.executeStrategy(stockList);
-
-        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });
-    });
-
-    test('Buy and hold strategy should not buy stocks that agent already owns', () => {
-        let stockList = new StockList();
-        stockList.addStock(new Stock('AAPL', 100));
-        stockList.addStock(new Stock('GOOGL', 200));
-        stockList.addStock(new Stock('MSFT', 50));
-
-        let testAgent = new Agent(1200, { AAPL: 6, GOOGL: 6, MSFT: 6 }, Strategy.buyAndHoldStrategy);
-        testAgent.executeStrategy(stockList);
-
-        expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6, GOOGL: 6, MSFT: 6 });
-    });
-});
-
 describe('Flow', () => {
     describe('Strategy Flow', () => {
         test('Agents should not have the same portfolio after executing random strategy', () => {
@@ -423,6 +357,71 @@ describe('Flow', () => {
             testAgent2.executeStrategy(stockList);
 
             expect(testAgent.equals(testAgent2)).toBe(true);
+        });
+
+
+        test('Random strategy should buy random amounts of each stock', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+    
+            let testAgent = new Agent(1200, {}, Strategy.randomStrategy);
+    
+            for (let i = 0; i < 1000; i++) {
+                testAgent.executeStrategy(stockList);
+            }
+    
+            expect(Object.keys(testAgent.getPortfolio()).length).toBeGreaterThanOrEqual(1);
+        });
+    
+        test('Equal buy and adjust strategy should equally(based on total portfolio value) buy and adjust equal amounts of each stock', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+    
+            let testAgent = new Agent(1200, {}, Strategy.equalBuyAndAdjustStrategy);
+            testAgent.executeStrategy(stockList);
+    
+            expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });
+        });
+    
+        test('Equal buy and adjust strategy should work first sell then buy to adjust situation', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+    
+            //No cash to buy but total portfolio value is 3000
+            let testAgent = new Agent(0, { AAPL: 9, GOOGL: 8, MSFT: 10 }, Strategy.equalBuyAndAdjustStrategy);
+            testAgent.executeStrategy(stockList);
+    
+            expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 10, GOOGL: 5, MSFT: 20 });
+        });
+    
+        test('Buy and hold strategy should buy stocks that agent does not own, equally', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+    
+            let testAgent = new Agent(1200, {}, Strategy.buyAndHoldStrategy);
+            testAgent.executeStrategy(stockList);
+    
+            expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 4, GOOGL: 2, MSFT: 8 });
+        });
+    
+        test('Buy and hold strategy should not buy stocks that agent already owns', () => {
+            let stockList = new StockList();
+            stockList.addStock(new Stock('AAPL', 100));
+            stockList.addStock(new Stock('GOOGL', 200));
+            stockList.addStock(new Stock('MSFT', 50));
+    
+            let testAgent = new Agent(1200, { AAPL: 6, GOOGL: 6, MSFT: 6 }, Strategy.buyAndHoldStrategy);
+            testAgent.executeStrategy(stockList);
+    
+            expect(testAgent.getPortfolio()).toStrictEqual({ AAPL: 6, GOOGL: 6, MSFT: 6 });
         });
     });
 

@@ -73,6 +73,39 @@ class Simulation {
         }
     }
 
+    static randomSimulation = new Simulation();
+
+    static flatSimulation = new Simulation((time, stockList) => {
+        let stocks = this.getAllStocks();
+        for (let symbol in stocks) {
+            this.getStock(symbol).rise(0);
+        }
+    });
+
+    static zigZagSimulation = new Simulation((time, stockList) => {
+        let stocks = this.getAllStocks();
+        for (let symbol in stocks) {
+            if (time % 2 == 0) {
+                this.getStock(symbol).rise(0.25);
+            } else {
+                // Fall 20% to the same price after rising 25% (100*1.25*0.80 = 100)
+                this.getStock(symbol).fall(0.20);
+            }
+        }
+    });
+
+    static randomZigZagSimulation = new Simulation((time, stockList) => {
+        let stocks = this.getAllStocks();
+        for (let symbol in stocks) {
+            if (Math.random() > 0.5) {
+                this.getStock(symbol).rise(0.25);
+            } else {
+                // Fall 20% to the same price after rising 25% (100*1.25*0.80 = 100)
+                this.getStock(symbol).fall(0.20);
+            }
+        }
+    });
+
     // Strategy Hash Code (for performance optimised comparison)
     hash() {
         let hash = 0;
